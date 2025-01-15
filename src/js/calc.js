@@ -4,14 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const cl = document.getElementById("clear");
   const display = document.getElementById("display");
   let str = "";
+  let lastActionWasEvaluation = false;
 
   cl.addEventListener("click", () => {
     str = "";
+    lastActionWasEvaluation = false;
     updateDisplay();
   });
 
   eq.addEventListener("click", () => {
     str = evaluateExpression(str);
+    lastActionWasEvaluation = true;
     updateDisplay();
   });
 
@@ -24,6 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function handleButtonClick(value) {
+    if (lastActionWasEvaluation) {
+      if (isOperator(value)) {
+        lastActionWasEvaluation = false;
+      } else {
+        str = "";
+        lastActionWasEvaluation = false;
+      }
+    }
+
     const lastChar = str.slice(-1);
 
     if (isOperator(value) && isOperator(lastChar)) {
