@@ -1,53 +1,54 @@
-const buttons = document.querySelectorAll("button");
-const eq = document.getElementById("equals");
-const cl = document.getElementById("clear");
-let str = "";
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll("button");
+  const eq = document.getElementById("equals");
+  const cl = document.getElementById("clear");
+  const display = document.getElementById("display");
+  let str = "";
 
-cl.addEventListener("click", (e) => {
-  str = "";
-  check();
-});
+  cl.addEventListener("click", () => {
+    str = "";
+    updateDisplay();
+  });
 
-function calculate(expression) {
-  try {
-    return new Function("return " + expression)();
-  } catch (e) {
-    return "Error";
+  eq.addEventListener("click", () => {
+    str = evaluateExpression(str);
+    updateDisplay();
+  });
+
+  buttons.forEach((button) => {
+    if (button.getAttribute("data-value")) {
+      button.addEventListener("click", (e) => {
+        handleButtonClick(e.target.getAttribute("data-value"));
+      });
+    }
+  });
+
+  function handleButtonClick(value) {
+    const lastChar = str.slice(-1);
+
+    if (isOperator(value) && isOperator(lastChar)) {
+      str = str.slice(0, -1) + value;
+    } else if (str === "0" && value === "0") {
+      return;
+    } else {
+      str += value;
+    }
+    updateDisplay();
   }
-}
 
-eq.addEventListener("click", (e) => {
-  str = calculate(str).toString();
-  check();
-});
+  function isOperator(char) {
+    return ["+", "-", "*", "/"].includes(char);
+  }
 
-function check() {
-  document.getElementById("display").value = str;
-}
+  function evaluateExpression(expression) {
+    try {
+      return eval(expression).toString();
+    } catch (e) {
+      return "Error";
+    }
+  }
 
-buttons.forEach((button) => {
-  if (button.getAttribute("data-value")) {
-    button.addEventListener("click", (e) => {
-      const strnum = e.target.getAttribute("data-value");
-      const lastChar = str.slice(-1);
-
-      if (
-        ["+", "-", "*", "/"].includes(strnum) &&
-        ["+", "-", "*", "/"].includes(lastChar)
-      ) {
-        str = str.slice(0, -1) + strnum;
-      } else if (str === "0" && strnum === "0") {
-        return;
-      } else if (
-        ["+", "-", "*", "/"].includes(lastChar) &&
-        strnum === "0" &&
-        str.slice(-2, -1) === "0"
-      ) {
-        return;
-      } else {
-        str += strnum;
-      }
-      check();
-    });
+  function updateDisplay() {
+    display.value = str;
   }
 });
